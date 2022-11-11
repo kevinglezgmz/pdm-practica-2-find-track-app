@@ -32,7 +32,7 @@ class TrackResultPage extends StatelessWidget {
       body: Column(children: [
         _getMainFixedSizedImage(),
         _getSongAlbumTextDetails(),
-        const Divider(color: Colors.white),
+        const Divider(color: Color.fromARGB(255, 190, 190, 190), thickness: 1),
         _getSongLinkIconButtonsFooter(),
       ]),
     );

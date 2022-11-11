@@ -47,22 +47,28 @@ class FavoriteTracksRepository {
       return AddTrackStatus.errorAddingToFav;
     }
     final userRef = usersCollection.doc(uid);
-    final trackInDb =
+    final tracksInDb =
         await tracksCollection.where("trackId", isEqualTo: track.trackId).get();
-    if (trackInDb.docs.isNotEmpty) {
-      final maybeFavTrackRef = trackInDb.docs.first.reference;
-      // Track in db, check if user has it
-      final maybeFavTrack = await favoriteTracksCollection
-          .where("user", isEqualTo: userRef)
-          .where("track", isEqualTo: maybeFavTrackRef)
-          .get();
-      if (maybeFavTrack.docs.isNotEmpty) {
-        // User has this track, nothing to do
-        return AddTrackStatus.alreadyFaved;
-      }
+
+    final DocumentReference<Map<String, dynamic>> trackRef;
+    if (tracksInDb.docs.isEmpty) {
+      trackRef = await tracksCollection
+          .add(track.toMap()..addAll({"trackId": track.trackId}));
+    } else {
+      trackRef = tracksInDb.docs.first.reference;
     }
-    final trackRef = await tracksCollection
-        .add(track.toMap()..addAll({"trackId": track.trackId}));
+
+    // Track is now in db, check if user has it
+    final maybeFavTrack = await favoriteTracksCollection
+        .where("user", isEqualTo: userRef)
+        .where("track", isEqualTo: trackRef)
+        .get();
+    if (maybeFavTrack.docs.isNotEmpty) {
+      // User has this track, nothing to do
+      return AddTrackStatus.alreadyFaved;
+    }
+
+    // User does not have the track, add it
     await favoriteTracksCollection.add({"user": userRef, "track": trackRef});
     return AddTrackStatus.addedToFavs;
   }
@@ -84,7 +90,7 @@ class FavoriteTracksRepository {
           .get();
       if (maybeFavTrack.docs.isNotEmpty) {
         await maybeFavTrack.docs.first.reference.delete();
-        // User has this track, nothing to do
+        // Successfuly removed the track from favorites
         return RemoveTrackStatus.removedFromFavs;
       }
     }

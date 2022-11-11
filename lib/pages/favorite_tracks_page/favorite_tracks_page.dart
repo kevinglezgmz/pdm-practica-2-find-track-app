@@ -24,6 +24,9 @@ class FavoriteTracksPage extends StatelessWidget {
             _showSnackBar(context, "Eliminando canción de favoritos...");
           } else if (state is FavoriteTracksRemoveSuccessTrackState) {
             _showSnackBar(context, "¡Canción eliminada de favoritos!");
+          } else if (state is FavoriteTracksRemoveErrorTrackState) {
+            _showSnackBar(
+                context, "Error eliminando la canción de favoritos...");
           }
         },
         builder: (context, state) {

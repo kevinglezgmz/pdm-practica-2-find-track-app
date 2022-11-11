@@ -36,6 +36,11 @@ class AuthRepository {
     if (_authInstance.currentUser?.uid == null) {
       throw 'Invalid uid for Google sign in';
     }
+    final UserModel? currUser =
+        await _getFirestoreUser(_authInstance.currentUser!.uid);
+    if (currUser != null) {
+      return currUser;
+    }
     final UserModel userDetails = await _createFirestoreUser(
       _authInstance.currentUser!.uid,
       googleSignInAccount.email,

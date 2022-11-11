@@ -58,10 +58,12 @@ class FavoriteTracksBloc
       if (status == RemoveTrackStatus.removedFromFavs) {
         _currentTracks
             .removeWhere((element) => element.trackId == event.track.trackId);
+      } else if (status == RemoveTrackStatus.errorRemovingFav) {
+        throw status;
       }
       emit(FavoriteTracksRemoveSuccessTrackState());
     } catch (e) {
-      emit(FavoriteTracksAddErrorTrackState());
+      emit(FavoriteTracksRemoveErrorTrackState());
     } finally {
       emit(FavoriteTracksLoadedTracksState(tracks: _currentTracks));
     }
